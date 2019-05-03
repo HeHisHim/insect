@@ -89,6 +89,7 @@ class CrawlBSF:
             req = requests.get(cur_url, headers = self.request_headers)
             logger.error("get it %s and status = %s" % (cur_url, req))
             html_page = req.content.decode("utf8")
+            # 取 http://之后的字符命名
             filename = cur_url[7:].replace("/", "_")
             with open("%s%s" % (self.dir_name, filename), "w") as fo:
                 fo.write(html_page)
