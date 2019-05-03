@@ -102,7 +102,7 @@ class CrawlBSF:
         self.download_bf.add(dumd5)
 
         html = etree.HTML(html_page.lower())
-        if not html:
+        if html is None:
             logger.error("None Page")
             return
         hrefs = html.xpath(u"//a")
@@ -111,6 +111,7 @@ class CrawlBSF:
             try:
                 if "href" in href.attrib:
                     val = href.attrib["href"]
+                    logger.info(val)
                     if -1 != val.find("javascript:"):
                         continue
                     if val[-4:] in ignore_file:
