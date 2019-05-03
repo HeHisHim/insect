@@ -11,6 +11,7 @@ import hashlib
 from pybloom import BloomFilter
 import os
 import requests
+from logConfig import logger
 
 ignore_file = [".jpg", ".gif"]
 
@@ -44,6 +45,7 @@ class CrawlBSF:
         self.root_url = url
         self.cur_queue.append(url)
 
+        # 创建文件夹和文件
         if not os.path.exists(self.dir_name):
             os.mkdir(self.dir_name)
             with open(self.du_url_file_name, "w"):
@@ -58,7 +60,7 @@ class CrawlBSF:
             self.downloaded_urls = self.dumd5_file.readlines()
             self.dumd5_file.close()
         except Exception as identifier:
-            print("%s - File not found -- %s" % (self.du_md5_file_name, identifier))
+            logger.error("%s - File not found -- %s" % (self.du_md5_file_name, identifier))
         finally:
             self.dumd5_file = open(self.du_md5_file_name, "a+")
 
@@ -70,8 +72,9 @@ class CrawlBSF:
             url = self.cur_queue.popleft()
             return url
         except Exception as identifier:
-            print(identifier)
+            logger.error(identifier)
             self.cur_level += 1
+            logger.error("cur_level: " + str(self.cur_level))
             if self.cur_level == self.max_level:
                 return
             if 0 == len(self.child_queue):
@@ -81,26 +84,16 @@ class CrawlBSF:
             return self.dequeueUrl()
 
     def getPageContent(self, cur_url):
-        print("downloading %s at level %d" % (cur_url, self.cur_level))
+        logger.error("downloading %s at level %d" % (cur_url, self.cur_level))
         try:
             req = requests.get(cur_url, headers = self.request_headers)
-            print("get it %s and status = %s" % (cur_url, req))
+            logger.error("get it %s and status = %s" % (cur_url, req))
             html_page = req.content.decode("utf8")
-            print("get html_page: ", type(html_page))
             filename = cur_url[7:].replace("/", "_")
             with open("%s%s" % (self.dir_name, filename), "w") as fo:
                 fo.write(html_page)
-        # except requests.exceptions.HTTPError as identifier:
-        #     print(identifier)
-        #     return
-        # except httplib2.HttpLib2Error as identifier:
-        #     print("identifier")
-        #     return
-        # except IOError as identifier:
-        #     print("IOE File Error at: ", filename)
-        #     return
         except Exception as identifier:
-            print("Error Error: %s" % identifier)
+            logger.error("Error Error: %s" % identifier)
             return
         dumd5 = hashlib.md5(cur_url.encode()).hexdigest()
         self.downloaded_urls.append(dumd5)
@@ -110,7 +103,7 @@ class CrawlBSF:
 
         html = etree.HTML(html_page.lower())
         if not html:
-            print("None Page")
+            logger.error("None Page")
             return
         hrefs = html.xpath(u"//a")
 
@@ -133,9 +126,9 @@ class CrawlBSF:
                     if hashlib.md5(val.encode()).hexdigest() not in self.download_bf:
                         self.enqueueUrl(val)
                     else:
-                        print("Skip %s" % val)
+                        logger.error("Skip %s" % val)
             except ValueError as identifier:
-                print(identifier)
+                logger.error(identifier)
                 continue
 
     def start(self):
