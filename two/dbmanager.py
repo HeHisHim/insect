@@ -4,41 +4,69 @@ sys.path.append("..")
 import pymysql
 import hashlib
 
-import logConfig
+from logConfig import logger
 
 class CrawlDataBaseManager:
     DB_NAME = "insect"
     SERVER_IP = "127.0.0.1"
-
-    TABLES = {}
 
     def __init__(self, max_thread = 1):
         try:
             self.conn = pymysql.connect(
                 host = self.SERVER_IP, 
                 user = "root", 
-                password = "*****",
-                database = "abc",
+                password = "******",
+                database = self.DB_NAME,
                 charset = "utf8"
             )
         except Exception as identifier:
-            logConfig.logger.error(identifier)
+            logger.error(identifier)
             exit(1)
 
-    def check(self):
-        SQL = "SELECT * FROM urls;"
-        res = 100
-        data = 200
+    # url入库
+    def enqueueUrl(self, url, depth):
+        SQL = "INSERT INTO urls (url, md5Code, depth) VALUES (%s, %s, %s);"
+        insertData = (url, hashlib.md5(url.encode()).hexdigest(), depth)
         try:
             with self.conn.cursor() as cursor:
-                res = cursor.execute(SQL)
-                data = cursor.fetchone()
+                cursor.execute(SQL, insertData)
         except Exception as identifier:
-            logConfig.logger.error(identifier)
-            logConfig.logger.error("mysql boom!")
-        
-        print("res: ", res)
-        print("data: ", data)
+            logger.error(identifier)
+            self.conn.rollback()
+        else:
+            self.conn.commit()
 
-x = CrawlDataBaseManager()
-x.check()
+    # url出库并加读锁
+    def dequeueUrl(self):
+        QUERY_SQL = "SELECT id, url, depth FROM urls WHERE status = 'new' ORDER BY id ASC LIMIT 1 FOR UPDATE;"
+        UPDATE_SQL = "UPDATE urls SET status = 'downloading' WHERE id = %s;"
+        res = None
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(QUERY_SQL)
+                if not cursor.rowcount:
+                    return None
+                res = cursor.fetchone()
+                cursor.execute(UPDATE_SQL, res[0])
+
+        except Exception as identifier:
+            logger.error(identifier)
+            self.conn.rollback()
+            return None
+        else:
+            self.conn.commit()
+
+    # 设置url状态为done
+    def finishUrl(self, id):
+        SQL = "UPDATE urls SET status = 'done' WHERE id = %s;"
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(SQL, id)
+        except Exception as identifier:
+            logger.error(identifier)
+            self.conn.rollback()
+        else:
+            self.conn.commit()
+
+if __name__ == "__main__":
+    pass
