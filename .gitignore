@@ -108,4 +108,4 @@ venv.bak/
 *.DS_Store
 *test.py
 *.html
-
+*log.txt
