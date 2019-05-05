@@ -21,7 +21,6 @@ CRAWL_DELAY = 0.6
 
 class CrawlBSF:
     request_headers = {
-        "host": "news.sina.com.cn",
         "connection": "keep-alive",
         "cache-control": "no-cache",
         "upgrade-insecure-requests": "1",
@@ -128,7 +127,7 @@ class CrawlBSF:
                         continue
                     elif not (val.startswith("http://") or val.startswith("https://")):
                         if val.startswith("/"):
-                            val = "https://news.sina.com.cn" + val
+                            val = "https://www.sina.com.cn/" + val
                         else:
                             continue
                     elif "/" == val[-1]:
@@ -139,7 +138,7 @@ class CrawlBSF:
                 continue
 
 def main():
-    crawl = CrawlBSF("https://news.sina.com.cn/")
+    crawl = CrawlBSF("https://www.sina.com.cn/")
     start_time = time.time()
 
     # 控制如果是第一个页面就阻塞去抓, 后续页面看多线程去抓
