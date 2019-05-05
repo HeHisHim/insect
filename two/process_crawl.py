@@ -10,7 +10,6 @@ import json
 from lxml import etree
 import httplib2
 import hashlib
-from pybloom import BloomFilter
 import os
 import requests
 import threading
@@ -23,7 +22,6 @@ ignore_file = [".jpg", ".gif"]
 CRAWL_DELAY = 0.6
 
 request_headers = {
-    "host": "news.sina.com.cn",
     "connection": "keep-alive",
     "cache-control": "no-cache",
     "upgrade-insecure-requests": "1",
@@ -68,6 +66,7 @@ def getPageContent(cur_url, id, depth):
             with open("%s%s.html" % (dir_name, filename), "w") as fo:
                 fo.write(html_page)
     except Exception as identifier:
+        logger.error("1")
         logger.error(identifier)
         return None
 
@@ -83,6 +82,7 @@ def getPageContent(cur_url, id, depth):
 
     html = etree.HTML(html_page.lower())
     if html is None:
+        logger.error("2")
         logger.error("None Page")
         return
     hrefs = html.xpath(u"//a")
@@ -97,20 +97,21 @@ def getPageContent(cur_url, id, depth):
                     continue
                 elif not (val.startswith("http://") or val.startswith("https://")):
                     if val.startswith("/"):
-                        val = "https://news.sina.com.cn" + val
+                        val = "https://www.sina.com.cn/" + val
                     else:
                         continue
                 elif "/" == val[-1]:
                     val = val[0:-1]
-                # dbmanager.enqueueUrl(val, int(depth) + 1)
+                dbmanager.enqueueUrl(val, int(depth) + 1)
         except Exception as identifier:
-            logger.error(identifier)
+            # logger.error("3")
+            # logger.error(identifier)
             continue
 
 def main():
     max_num_thread = 5
 
-    dbmanager.enqueueUrl("https://news.sina.com.cn/", 0)
+    dbmanager.enqueueUrl("https://www.sina.com.cn/", 0)
 
     is_root_page = True
     threads = []
@@ -127,7 +128,7 @@ def main():
             is_root_page = False
         else:
             while True:
-                for th in threads[:]:
+                for th in threads:
                     if not th.is_alive():
                         logger.info("remove who: %s", th)
                         threads.remove(th)
@@ -137,10 +138,10 @@ def main():
                     continue
                 
                 try:
-                    # th = threading.Thread(target = getPageContent, args = (curtask[1], curtask[0], curtask[2]))
-                    th = Process(target = getPageContent, args = (curtask[1], curtask[0], curtask[2]))
+                    th = threading.Thread(target = getPageContent, args = (curtask[1], curtask[0], curtask[2]))
+                    # th = Process(target = getPageContent, args = (curtask[1], curtask[0], curtask[2]))
                     threads.append(th)
-                    # th.setDaemon(True)
+                    th.setDaemon(True)
                     logger.info("threads info: %d" % len(threads))
                     for x in threads:
                         logger.info("thread inner info %s" % x)
@@ -148,6 +149,7 @@ def main():
                     time.sleep(CRAWL_DELAY)
                     break
                 except Exception as identifier:
+                    logger.error("4")
                     logger.error(identifier)
 
 if __name__ == "__main__":
