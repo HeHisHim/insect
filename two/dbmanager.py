@@ -10,7 +10,7 @@ class CrawlDataBaseManager:
     DB_NAME = "insect"
     SERVER_IP = "127.0.0.1"
 
-    def __init__(self, max_thread = 1):
+    def __init__(self):
         try:
             self.conn = pymysql.connect(
                 host = self.SERVER_IP, 
@@ -48,12 +48,12 @@ class CrawlDataBaseManager:
                     return None
                 res = cursor.fetchone()
                 cursor.execute(UPDATE_SQL, res[0])
-
+                return res
         except Exception as identifier:
             logger.error(identifier)
             self.conn.rollback()
             return None
-        else:
+        finally:
             self.conn.commit()
 
     # 设置url状态为done
