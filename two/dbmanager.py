@@ -25,13 +25,13 @@ class CrawlDataBaseManager:
 
     # url入库
     def enqueueUrl(self, url, depth):
-        self.conn = pymysql.connect(
-                host = self.SERVER_IP, 
-                user = "root", 
-                password = "******",
-                database = self.DB_NAME,
-                charset = "utf8"
-            )
+        # self.conn = pymysql.connect(
+        #         host = self.SERVER_IP, 
+        #         user = "root", 
+        #         password = "******",
+        #         database = self.DB_NAME,
+        #         charset = "utf8"
+        #     )
         SQL = "INSERT INTO urls (url, md5Code, depth) VALUES (%s, %s, %s);"
         insertData = (url, hashlib.md5(url.encode()).hexdigest(), depth)
         try:
@@ -64,25 +64,25 @@ class CrawlDataBaseManager:
                     return None
                 res = cursor.fetchone()
                 cursor.execute(UPDATE_SQL, res[0])
-                return res
         except Exception as identifier:
             logger.error(identifier)
             self.conn.rollback()
             return None
-        finally:
+        else:
             self.conn.commit()
+            return res
 
     # 设置url状态为done
     def finishUrl(self, id):
-        SQL = "UPDATE urls SET status = 'done' WHERE id = %s;"
+        SQL = "UPDATE urls SET status = 'abandon' WHERE id = %s;"
         try:
-            
             with self.conn.cursor() as cursor:
                 cursor.execute(SQL, id)
         except Exception as identifier:
             logger.error("7")
             logger.error(identifier)
             self.conn.rollback()
+            return
         else:
             self.conn.commit()
             
