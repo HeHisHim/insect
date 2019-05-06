@@ -25,8 +25,7 @@ request_headers = {
     "connection": "keep-alive",
     "cache-control": "no-cache",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 \
-        (KHTML, like Gecko) Chrome/74.0.3729.131 Mobile Safari/537.36",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
 }
