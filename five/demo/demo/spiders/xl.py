@@ -25,7 +25,7 @@ class XlSpider(scrapy.Spider):
         # print(type(response.body))
         html = response.body.decode("utf8")
         html_page = etree.HTML(html)
-        contents = html_page.xpath(u"//a[@href = 'https://news.sina.com.cn/gov/xlxw/2019-05-07/doc-ihvhiqax7082692.shtml']")
+        contents = html_page.xpath(u"//a[@target = '_blank']")
         # print(dir(content))
         with open("index.html", "w") as fo:
             for con in contents:
