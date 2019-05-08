@@ -67,9 +67,10 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'demo.pipelines.DemoPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'demo.pipelines.DemoPipeline': 300,
+   "demo.pipelines.MongoPipeline": 301,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -91,3 +92,7 @@ ROBOTSTXT_OBEY = True
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# MongoDB Settings
+MONGO_URI = "mongodb://127.0.0.1"
+MONGO_DATABASE = "robot"
