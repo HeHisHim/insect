@@ -6,7 +6,9 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+from selenium import webdriver
+import time
+from scrapy.http import HtmlResponse
 
 class GetcaptchaSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -101,3 +103,26 @@ class GetcaptchaDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class SeleniumMiddleware:
+    def __init__(self):
+        opt = webdriver.ChromeOptions()
+        opt.set_headless()
+        self.driver = webdriver.Chrome(options=opt)
+
+    def process_request(self, request, spider):
+        self.driver.get(request.url)
+        time.sleep(5)
+        return HtmlResponse(url = self.driver.current_url, body = self.driver.page_source, encoding="utf8", request=request)
+
+    def spider_closed(self, spider, reason):
+        self.driver.quit()
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        # This method is used by Scrapy to close your spiders.
+        s = cls()
+        # 注册关闭信号, 收到spider_closed信号就回调spider_closed来关闭driver, 不然会内存泄漏
+        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
+        return s
