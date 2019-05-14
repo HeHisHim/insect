@@ -17,3 +17,8 @@ class XLProduct(scrapy.Item):
     title = scrapy.Field()
     tarUrl = scrapy.Field()
     last_updated = scrapy.Field(serializer=str)
+
+class TBProduct(scrapy.Item):
+    title = scrapy.Field()
+    price = scrapy.Field()
+    last_updated = scrapy.Field(serializer=str)

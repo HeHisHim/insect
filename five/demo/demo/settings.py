@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'demo.spiders'
 #USER_AGENT = 'demo (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -55,9 +55,9 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'demo.middlewares.DemoDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   'demo.middlewares.SeleniumMiddleware': 543,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -96,3 +96,5 @@ ITEM_PIPELINES = {
 # MongoDB Settings
 MONGO_URI = "mongodb://127.0.0.1"
 MONGO_DATABASE = "robot"
+
+DEPTH_LIMIT = 1
