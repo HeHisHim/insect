@@ -40,5 +40,8 @@ class MongoPipeline:
 
     def process_item(self, item, spider):
         print("process_item: ", item, spider)
-        self.db[self.collection_name].insert_one(dict(item))
+        filterItem = dict(item)
+        if self.db[self.collection_name].find({"title": filterItem.get("title")}).count() > 0:
+            return
+        self.db[self.collection_name].insert_one(filterItem)
         return item
