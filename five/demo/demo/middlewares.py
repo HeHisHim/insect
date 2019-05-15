@@ -9,6 +9,7 @@ from scrapy import signals
 from selenium import webdriver
 import time
 from scrapy.http import HtmlResponse
+from selenium.webdriver.common.keys import Keys
 
 
 class DemoSpiderMiddleware(object):
@@ -107,15 +108,23 @@ class DemoDownloaderMiddleware(object):
 
 class SeleniumMiddleware:
     def __init__(self):
-        opt = webdriver.ChromeOptions()
-        opt.set_headless()
-        self.driver = webdriver.Chrome(options=opt)
+        self.driver = webdriver.Chrome()
+        self.driver.implicitly_wait(26)
+        # opt = webdriver.ChromeOptions()
+        # opt.set_headless()
+        # self.driver = webdriver.Chrome(options=opt)
 
     def process_request(self, request, spider):
         self.driver.get(request.url)
-        # self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(5)
-        return HtmlResponse(url = self.driver.current_url, body = self.driver.page_source, encoding="utf8", request=request)
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight / 2)")
+        time.sleep(5)
+        self.driver.find_element_by_xpath('//*[@id="J_TabBar"]/li[2]/a').click()
+        time.sleep(5)
+        self.driver.find_element_by_xpath('//*[@id="reviews-t-all"]').send_keys(Keys.SPACE)
+        time.sleep(5)
+        return HtmlResponse(url = self.driver.current_url, body = self.driver.page_source, encoding="utf-8", request=request)
 
     def spider_closed(self, spider, reason):
         self.driver.quit()
