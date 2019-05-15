@@ -22,3 +22,10 @@ class TBProduct(scrapy.Item):
     title = scrapy.Field()
     price = scrapy.Field()
     last_updated = scrapy.Field(serializer=str)
+
+class AmaProduct(scrapy.Item):
+    title = scrapy.Field()
+    price = scrapy.Field()
+    tarUrl = scrapy.Field()
+    md5Url = scrapy.Field()
+    last_updated = scrapy.Field(serializer=str)
