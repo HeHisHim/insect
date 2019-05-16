@@ -11,7 +11,7 @@ class TbSpider(scrapy.Spider):
     name = 'tb'
     number = 0
     allowed_domains = ['www.taobao.com']
-    start_urls = ['https://item.taobao.com/item.htm?id=576771763547&scm=1007.12144.95220.42296_0_0&pvid=92676c16-1aff-426f-ab1e-2dd0c51449c3&utparam=%7B%22x_hestia_source%22:%2242296%22,%22x_object_type%22:%22item%22,%22x_mt%22:0,%22x_src%22:%2242296%22,%22x_pos%22:3,%22x_pvid%22:%2292676c16-1aff-426f-ab1e-2dd0c51449c3%22,%22x_object_id%22:576771763547%7D']
+    start_urls = ['https://item.taobao.com/item.htm?spm=a230r.1.14.20.6e5f411er7xBrP&id=576637081854&ns=1&abbucket=12#detail']
     request_headers = {
         "connection": "keep-alive",
         "cache-control": "no-cache",
@@ -48,24 +48,6 @@ class TbSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, headers = self.request_headers, cookies = self.request_cookies)
 
     def parse(self, response):
-        if 3 == self.number:
-            return
-        self.number += 1
         contents = response.body.decode("utf8")
-        html = etree.HTML(contents)
-        if html.xpath(u"//h3[@class = 'tb-main-title']") and html.xpath(u"//em[@class = 'tb-rmb-num']"):
-            title = html.xpath(u"//h3[@class = 'tb-main-title']")[0]
-            price = html.xpath(u"//em[@class = 'tb-rmb-num']")[0]
-            self.TBItem["title"] = title.text.strip()
-            self.TBItem["price"] = price.text
-            yield self.TBItem
-
-        hrefs = html.xpath(u"//a")
-        for href in hrefs:
-            try:
-                val = href.attrib["href"]
-                if val.startswith("//item.taobao.com"):
-                    val = "https:" + val
-                    yield scrapy.Request(url = val, callback = self.parse, headers = self.request_headers, cookies = self.request_cookies, dont_filter=True)
-            except Exception:
-                continue
+        with open("index.html", "w") as fo:
+            fo.write(contents)
