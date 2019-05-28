@@ -2,6 +2,7 @@
 import scrapy
 from lxml import etree
 from ..items import XLProduct
+import hashlib
 
 class XlSpider(scrapy.Spider):
     request_headers = {
@@ -34,6 +35,7 @@ class XlSpider(scrapy.Spider):
             if con.text:
                 self.XLItem["title"] = con.text
                 self.XLItem["tarUrl"] = con.attrib["href"]
+                self.XLItem["md5Url"] = hashlib.md5(self.XLItem["tarUrl"].encode()).hexdigest()
                 """
                 parse方法 要么yield一个字典类型 要么yield一个scrapy.Request
                 当为字典类型: 数据会通过pipelines.py的类处理
